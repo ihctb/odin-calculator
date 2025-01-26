@@ -1,5 +1,6 @@
 const MAX_DIGITS = 9;
 const displayText = document.querySelector('.display-text');
+const memSymbol = document.querySelector('.mem-symbol');
 
 const ops = {
     '+': (x, y) => x + y,
@@ -8,18 +9,36 @@ const ops = {
     '/': (x, y) => y === 0 ? 'ERROR' : x / y,
 };
 
+const memoryOps = {
+    'mem-add': () => {
+        memoryValue += accumulator;
+        setMemorySymbolVisibility();
+    },
+    'mem-recall': () => {
+        accumulator = memoryValue;
+        showNumber(accumulator);
+    },
+    'mem-clear': () => {
+        memoryValue = 0;
+        setMemorySymbolVisibility();
+    },
+}
+
 const keyMap = {
     '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6',
     '7': '7', '8': '8', '9': '9', '+': '+', '-': '-', '*': '*', '/': '/',
-    'enter': '=', '=': '=', 'escape': 'clear', 'delete': 'clear', 'c': 'clear',
-    '.': '.',
+    'enter': '=', '=': '=', 'escape': 'clear', 'c': 'clear', '.': '.',
+    'insert': 'mem-add', 'm': 'mem-recall', 'delete': 'mem-clear',
 };
 
 let accumulator = 0;
 let interimValue = 0;
 let previousOp = null;
+
 let hasDecimal = false;
 let decimalFactor = 1;
+
+let memoryValue = 0;
 
 document.addEventListener('keydown', (event) => {
     const key = event.key.toLowerCase();
@@ -62,6 +81,9 @@ const calculate = (buttonPressed) => {
             hasDecimal = false;
             decimalFactor = 1;
             break;
+        case buttonPressed in memoryOps:
+            memoryOps[buttonPressed]();
+            break;
         case buttonPressed === 'clear':
             accumulator = 0;
             interimValue = 0;
@@ -102,4 +124,13 @@ const calculate = (buttonPressed) => {
     }
 };
 
+const setMemorySymbolVisibility = async () => {
+    memSymbol.style.display = 'none';
+    memSymbol.style.visibility = 'hidden';
+    await showNumber(accumulator);
+    memSymbol.style.display = memoryValue !== 0 ? 'block' : 'none';
+    memSymbol.style.visibility = memoryValue !== 0 ? 'visible' : 'hidden';
+};
+
 showNumber(accumulator);
+setMemorySymbolVisibility();
