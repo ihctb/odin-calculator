@@ -12,11 +12,14 @@ const keyMap = {
     '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6',
     '7': '7', '8': '8', '9': '9', '+': '+', '-': '-', '*': '*', '/': '/',
     'enter': '=', '=': '=', 'escape': 'clear', 'delete': 'clear', 'c': 'clear',
+    '.': '.',
 };
 
 let accumulator = 0;
 let interimValue = 0;
 let previousOp = null;
+let hasDecimal = false;
+let decimalFactor = 1;
 
 document.addEventListener('keydown', (event) => {
     const key = event.key.toLowerCase();
@@ -56,11 +59,15 @@ const calculate = (buttonPressed) => {
             showNumber(accumulator);
             accumulator = 0;
             previousOp = buttonPressed;
+            hasDecimal = false;
+            decimalFactor = 1;
             break;
         case buttonPressed === 'clear':
             accumulator = 0;
             interimValue = 0;
             previousOp = null;
+            hasDecimal = false;
+            decimalFactor = 1;
             showNumber(accumulator);
             break;
         case buttonPressed === '=':
@@ -70,11 +77,26 @@ const calculate = (buttonPressed) => {
                 interimValue = 0;
                 previousOp = null;
             }
+            hasDecimal = false;
+            decimalFactor = 1;
             showNumber(accumulator);
             break;
+        case buttonPressed === '.':
+            if (!hasDecimal) {
+                hasDecimal = true;
+                decimalFactor = .1;
+            }
+            break;
         default:
-            if (accumulator.toString().length < MAX_DIGITS)
-                accumulator = accumulator * 10 + parseInt(buttonPressed, 10);
+            if (accumulator.toString().replace('.', '').length < MAX_DIGITS) {
+                const digit = parseInt(buttonPressed, 10);
+                if (hasDecimal) {
+                    accumulator += digit * decimalFactor;
+                    decimalFactor /= 10;
+                } else {
+                    accumulator = accumulator * 10 + digit
+                }
+            }
             showNumber(accumulator);
             break;
     }
