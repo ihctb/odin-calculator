@@ -8,9 +8,23 @@ const ops = {
     '/': (x, y) => y === 0 ? 'ERROR' : x / y,
 };
 
+const keyMap = {
+    '0': '0', '1': '1', '2': '2', '3': '3', '4': '4', '5': '5', '6': '6',
+    '7': '7', '8': '8', '9': '9', '+': '+', '-': '-', '*': '*', '/': '/',
+    'enter': '=', '=': '=', 'escape': 'clear', 'delete': 'clear', 'c': 'clear',
+};
+
 let accumulator = 0;
 let interimValue = 0;
 let previousOp = null;
+
+document.addEventListener('keydown', (event) => {
+    const key = event.key.toLowerCase();
+    if (key in keyMap) {
+        event.preventDefault();
+        calculate(keyMap[key]);
+    }
+});
 
 document.querySelectorAll('.calc-button').forEach(button =>
     button.addEventListener('click', () => calculate(button.id)));
